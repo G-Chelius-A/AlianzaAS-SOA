@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!--
+        ESQUEMA CANÓNICO XSD: alianza.xsd
+        Alianza de aerolíneas "Alas del Sur"
+
+        NOTA DE DISEÑO ARQUITECTURAL:
+        No debe confundirse la herencia JPA (estrategia JOINED) con la herencia en XML Schema (xs:complexType con xs:extension).
+        Son mecanismos tecnológicos totalmente independientes que modelan coherentemente la misma realidad conceptual:
+        En la base de datos relacional, JPA almacena los datos comunes de Pasajero en una tabla base ('pasajero') y los
+        específicos en tablas unidas ('adulto', 'menor', 'infante').
+        En el esquema XSD, 'AdultoType', 'MenorType' e 'InfanteType' extienden de 'PasajeroBase' reutilizando campos
+        comunes y añadiendo sus propios elementos hijos, garantizando validación estructural estricta.
+    -->
+
+    <!-- ========================================== -->
+    <!-- TIPOS SIMPLES Y RESTRICCIONES (Al menos 4) -->
+    <!-- ========================================== -->
+
+    <!-- 1. Restricción xs:pattern para UUID v4 canónico -->
+    <xs:simpleType name="UUIDType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 2. Restricción xs:pattern para código de Moneda ISO 4217 (3 letras mayúsculas) -->
+    <xs:simpleType name="MonedaISOType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Z]{3}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 3. Restricción xs:pattern para teléfono internacional formato E.164 (+ seguido de dígitos) -->
+    <xs:simpleType name="TelefonoE164Type">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\+[1-9]\d{1,14}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 4. Restricción xs:pattern para LocalDateTime sin offset: yyyy-MM-ddTHH:mm:ss -->
+    <xs:simpleType name="LocalDateTimeSinOffsetType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 5. Restricción xs:enumeration para Aerolínea de Origen -->
+    <xs:simpleType name="AerolineaOrigenEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="AERONORTE"/>
+            <xs:enumeration value="SURJET"/>
+            <xs:enumeration value="CARIBEAIR"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 6. Restricción xs:enumeration para Unidad de Peso -->
+    <xs:simpleType name="UnidadPesoEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="KG"/>
+            <xs:enumeration value="LB"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 7. Restricción xs:minInclusive y fractionDigits para Importe (≥ 0, 2 decimales) -->
+    <xs:simpleType name="ImporteMonetarioType">
+        <xs:restriction base="xs:decimal">
+            <xs:minInclusive value="0.00"/>
+            <xs:fractionDigits value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 8. Restricción xs:minInclusive para Enteros no negativos (Peso, Piezas) -->
+    <xs:simpleType name="EnteroNoNegativoType">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 9. Restricción xs:maxLength para Nombres / Apellidos (máx 40 caracteres) -->
+    <xs:simpleType name="Texto40Type">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="40"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- 10. Restricción xs:maxLength para Origen / Destino de Vuelo (máx 100 caracteres) -->
+    <xs:simpleType name="Texto100Type">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="100"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- ========================================== -->
+    <!-- TIPOS COMPLEJOS: JERARQUÍA DE PASAJEROS    -->
+    <!-- ========================================== -->
+
+    <!-- Tipo Base para Pasajero -->
+    <xs:complexType name="PasajeroBase" abstract="true">
+        <xs:sequence>
+            <xs:element name="idPasajero" type="UUIDType"/>
+            <xs:element name="nombres" type="Texto40Type"/>
+            <xs:element name="apellidos" type="Texto40Type"/>
+            <xs:element name="nacionalidad" type="Texto40Type" nillable="true"/>
+            <xs:element name="fechaNacimiento" type="xs:date" nillable="true"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Subtipo Adulto -->
+    <xs:complexType name="AdultoType">
+        <xs:complexContent>
+            <xs:extension base="PasajeroBase">
+                <xs:sequence>
+                    <xs:element name="documentoIdentidad" type="xs:string" nillable="true"/>
+                    <xs:element name="telefonoContacto" type="TelefonoE164Type" nillable="true"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Subtipo Menor -->
+    <xs:complexType name="MenorType">
+        <xs:complexContent>
+            <xs:extension base="PasajeroBase">
+                <xs:sequence>
+                    <xs:element name="idTutor" type="UUIDType"/>
+                    <xs:element name="requiereAcompanante" type="xs:boolean"/>
+                    <xs:element name="autorizacionViaje" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Subtipo Infante -->
+    <xs:complexType name="InfanteType">
+        <xs:complexContent>
+            <xs:extension base="PasajeroBase">
+                <xs:sequence>
+                    <xs:element name="idTutor" type="UUIDType"/>
+                    <xs:element name="requiereAsiento" type="xs:boolean"/>
+                    <xs:element name="requiereServicioEspecial" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- ========================================== -->
+    <!-- TIPOS COMPLEJOS: ENTIDADES ASOCIADAS       -->
+    <!-- ========================================== -->
+
+    <!-- Tarifa (1:1) -->
+    <xs:complexType name="TarifaType">
+        <xs:sequence>
+            <xs:element name="idTarifa" type="UUIDType"/>
+            <xs:element name="importe" type="ImporteMonetarioType"/>
+            <xs:element name="moneda" type="MonedaISOType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Vuelo (1:N dentro de contenedor vuelos) -->
+    <xs:complexType name="VueloType">
+        <xs:sequence>
+            <xs:element name="idVuelo" type="UUIDType"/>
+            <xs:element name="fechaHoraSalida" type="LocalDateTimeSinOffsetType"/>
+            <xs:element name="origen" type="Texto100Type" nillable="true"/>
+            <xs:element name="destino" type="Texto100Type" nillable="true"/>
+            <xs:element name="completado" type="xs:boolean"/>
+            <xs:element name="fechaHoraLlegada" type="LocalDateTimeSinOffsetType" nillable="true"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="VuelosType">
+        <xs:sequence>
+            <xs:element name="vuelo" type="VueloType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Equipaje (0..1 : 1, nillable en la reserva) -->
+    <xs:complexType name="EquipajeType">
+        <xs:sequence>
+            <xs:element name="idEquipaje" type="UUIDType"/>
+            <xs:element name="cantidadPiezas" type="EnteroNoNegativoType" nillable="true"/>
+            <xs:element name="peso" type="EnteroNoNegativoType" nillable="true"/>
+            <xs:element name="unidadPeso" type="UnidadPesoEnum" nillable="true"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ========================================== -->
+    <!-- ELEMENTO RAÍZ: RESERVA                     -->
+    <!-- ========================================== -->
+
+    <xs:element name="reserva">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="idReserva" type="UUIDType"/>
+                <xs:element name="origenPNR" type="xs:string"/>
+                <xs:element name="aerolineaOrigen" type="AerolineaOrigenEnum"/>
+
+                <!-- Discriminador estricto por elemento choice: adulto, menor o infante -->
+                <xs:choice>
+                    <xs:element name="adulto" type="AdultoType"/>
+                    <xs:element name="menor" type="MenorType"/>
+                    <xs:element name="infante" type="InfanteType"/>
+                </xs:choice>
+
+                <xs:element name="tarifa" type="TarifaType"/>
+                <xs:element name="vuelos" type="VuelosType"/>
+                <xs:element name="equipaje" type="EquipajeType" nillable="true"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

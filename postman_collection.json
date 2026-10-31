@@ -1,0 +1,364 @@
+{
+	"info": {
+		"_postman_id": "alianza-alas-del-sur-collection",
+		"name": "Alianza Alas del Sur - API de Reservas",
+		"description": "Colección completa de pruebas para el servicio canónico de reservas de la alianza Alas del Sur",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Muestras Oficiales (Creación)",
+			"item": [
+				{
+					"name": "1.1 Crear Reserva AeroNorte (XML)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"idReservaAeroNorte\", jsonData.idReserva);",
+									"pm.environment.set(\"idPasajeroAdulto\", jsonData.pasajero.idPasajero);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"xml\": \"<reserva>\\n  <pnr>QX7Z2A</pnr>\\n  <pasajero>GARCIA/ANA</pasajero>\\n  <fecha>03/04/2026</fecha>\\n  <tarifa>4500</tarifa>\\n  <equipaje>23</equipaje>\\n  <menor>N</menor>\\n</reserva>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/aeronorte",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "aeronorte"]
+						}
+					}
+				},
+				{
+					"name": "1.2 Crear Reserva SurJet (JSON)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"booking\": \"SJ-88412\",\n  \"firstName\": \"Ana\",\n  \"lastName\": \"García\",\n  \"flightDate\": \"2026-04-03T08:30:00-06:00\",\n  \"fare\": { \"amount\": 260, \"currency\": \"USD\" },\n  \"bagsLb\": 50,\n  \"age\": 34\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/surjet",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "surjet"]
+						}
+					}
+				},
+				{
+					"name": "1.3 Crear Reserva CaribeAir (JSON)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 99812,\n  \"nombre\": \"Ana Garcia\",\n  \"fecha\": \"04/03/2026\",\n  \"precio\": \"4,500.00\",\n  \"maleta\": \"1 pieza\",\n  \"tipoPasajero\": \"ADT\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/caribeair",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "caribeair"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Consultas y Detalle",
+			"item": [
+				{
+					"name": "2.1 Listar Todas las Reservas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas"]
+						}
+					}
+				},
+				{
+					"name": "2.2 Filtrar por Aerolinea (AERONORTE)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas?aerolinea=AERONORTE",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas"],
+							"query": [
+								{
+									"key": "aerolinea",
+									"value": "AERONORTE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "2.3 Obtener Detalle JSON Canónico",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/{{idReservaAeroNorte}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "{{idReservaAeroNorte}}"]
+						}
+					}
+				},
+				{
+					"name": "2.4 Obtener XML Canónico",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/{{idReservaAeroNorte}}/xml-canonico",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "{{idReservaAeroNorte}}", "xml-canonico"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Casos de Tutoría",
+			"item": [
+				{
+					"name": "3.1 Menor sin Tutor (Debe dar 422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"xml\": \"<reserva><pnr>QX7Z2S</pnr><pasajero>GARCIA/PEDRO</pasajero><fecha>03/04/2026</fecha><tarifa>2000</tarifa><equipaje>10</equipaje><menor>S</menor></reserva>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/aeronorte",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "aeronorte"]
+						}
+					}
+				},
+				{
+					"name": "3.2 Tutor Inexistente (Debe dar 404)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"xml\": \"<reserva><pnr>QX7Z2M</pnr><pasajero>GARCIA/PEDRO</pasajero><fecha>03/04/2026</fecha><tarifa>2000</tarifa><equipaje>10</equipaje><menor>S</menor></reserva>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/aeronorte?idTutor=00000000-0000-0000-0000-000000000000",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "aeronorte"],
+							"query": [
+								{
+									"key": "idTutor",
+									"value": "00000000-0000-0000-0000-000000000000"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3.3 Menor con Tutor Válido (Debe dar 201)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"xml\": \"<reserva><pnr>QX7Z2S</pnr><pasajero>GARCIA/PEDRO</pasajero><fecha>03/04/2026</fecha><tarifa>2000</tarifa><equipaje>10</equipaje><menor>S</menor></reserva>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/aeronorte?idTutor={{idPasajeroAdulto}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "aeronorte"],
+							"query": [
+								{
+									"key": "idTutor",
+									"value": "{{idPasajeroAdulto}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3.4 Consultar Tutelados de un Adulto",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6767/api/v1/pasajeros/{{idPasajeroAdulto}}/tutelados",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "pasajeros", "{{idPasajeroAdulto}}", "tutelados"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Errores y Validaciones de Esquema",
+			"item": [
+				{
+					"name": "4.1 PNR Duplicado (Debe dar 409 Conflict)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"xml\": \"<reserva><pnr>QX7Z2A</pnr><pasajero>GARCIA/ANA</pasajero><fecha>03/04/2026</fecha><tarifa>4500</tarifa><equipaje>23</equipaje><menor>N</menor></reserva>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/aeronorte",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "aeronorte"]
+						}
+					}
+				},
+				{
+					"name": "4.2 PNR de longitud errónea (Debe dar 422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"xml\": \"<reserva><pnr>123</pnr><pasajero>GARCIA/ANA</pasajero><fecha>03/04/2026</fecha><tarifa>4500</tarifa><equipaje>23</equipaje><menor>N</menor></reserva>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/reservas/aeronorte",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "reservas", "aeronorte"]
+						}
+					}
+				},
+				{
+					"name": "4.3 Validación Directa XML contra alianza.xsd",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"xml\": \"<reserva><idReserva>invalido</idReserva></reserva>\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/validaciones/xml",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "validaciones", "xml"]
+						}
+					}
+				},
+				{
+					"name": "4.4 Validación Directa JSON contra reserva.schema.json",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idReserva\": \"invalido\",\n  \"origenPNR\": \"123\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:6767/api/v1/validaciones/json",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "6767",
+							"path": ["api", "v1", "validaciones", "json"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
