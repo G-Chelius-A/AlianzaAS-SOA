@@ -74,7 +74,8 @@ DB_PASSWORD=tu_contraseña
 ### 1. Clonar o acceder al proyecto
 
 ```bash
-cd "alianza"
+git clone https://github.com/G-Chelius-A/AlianzaAS-SOA
+cd "AlianzaAS-SOA"
 ```
 
 ### 2. Crear la base de datos en MySQL (opcional si `createDatabaseIfNotExist=true`)
@@ -280,7 +281,7 @@ Prefijo base: `http://localhost:6767`
 ```json
 // Petición
 {
-  "nombres": "Carlos",
+  "nombres": "Juan",
   "apellidos": "Gómez Pérez",
   "nacionalidad": "Mexicana",
   "fechaNacimiento": "1985-06-15",
@@ -294,7 +295,7 @@ Prefijo base: `http://localhost:6767`
 {
   "tipoPasajero": "ADULTO",
   "idPasajero": "8b94f6c4-1a3b-4c7b-b3c1-7c9e1e1a2b3c",
-  "nombres": "Carlos",
+  "nombres": "Juan",
   "apellidos": "Gómez Pérez",
   "nacionalidad": "Mexicana",
   "fechaNacimiento": "1985-06-15",
