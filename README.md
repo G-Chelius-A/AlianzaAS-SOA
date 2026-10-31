@@ -15,7 +15,7 @@ Desarrollada con **Spring Boot 3.3.4**, **Spring Data JPA** y **MySQL**.
 
 ---
 
-## Diagrama de base de datos
+## Diagrama
 
 ![DIAGRAMA_ALIANZA](DIAGRAMA_ALIANZA.png)
 
